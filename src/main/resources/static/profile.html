@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>卡牌</title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+            font-size: 12px;
+            font-family:'微软雅黑';
+            color: #333;
+        }
+        header{
+            background: #cccccc;
+            height: 100px;
+
+        }
+        .btn-header{
+            float: left;
+            width: 20%;
+            font-size:30px;
+            text-align: center;
+            line-height:100px;
+            cursor: pointer;
+        }
+        .normal:hover{
+            background: #09c;
+            color: #fff;
+        }
+        .active{
+            background: #069;
+            color: #fff;
+        }
+        .form{
+            margin: 20px auto 0;
+            width: 80%;
+            border-top: 1px solid #ccc;
+            border-left: 1px solid #ccc;
+        }
+        .form td{
+            height: 30px;
+            border-right: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+            text-align: center;
+        }
+        .m-btn{
+            margin: 30px auto 0;
+            text-align: center;
+        }
+        .m-btn button{
+            display: inline-block;
+            width: 160px;
+            height: 30px;
+            font-size: 20px;
+            line-height: 30px;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+        }
+        .m-btn button:hover{
+            background: #069;
+            color: #fff;
+        }
+        .m-btn a{
+            display: inline-block;
+            width: 160px;
+            height: 30px;
+            font-size: 20px;
+            line-height: 30px;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+        }
+        .m-btn a:hover{
+            background: #069;
+            color: #fff;
+        }
+        .form-page{
+            margin: 20px auto;
+            text-align: center;
+            font-size: 16px;
+        }
+        .btn-page{
+            margin: 0 8px;
+        }
+        #total{
+            color: #900;
+            font-weight: bold;
+        }
+        #num{
+            margin: 0 5px;
+            width: 26px;
+            text-align: center;
+        }
+        .f-load{
+            margin-left: 45%;
+            margin-top: 10px;
+        }
+    </style>
+    <script src="js/jquery.min.js"></script>
+</head>
+<body>
+<script>
+    var key;
+    $(function() {
+        $('.btn-header').on('click', function (e) {
+            window.location.href = $(this).attr("id") + ".html";
+        });
+
+        $('#save_button').on('click', function(e){
+            var tradeUrl = $('#trade_url').val();
+            $.get('/profile/save',{tradeUrl:tradeUrl},function(res){
+                if(res.result){
+                    alert("保存成功");
+                }else{
+                    alert(res.message)
+                    if(res.data == '3') {
+                        setTimeout(function () {
+                            window.location.href = "main.html";
+                        }, 2000)
+                    }
+                }
+            });
+        });
+        $.get("/profile/myprofile", {}, function(res){
+            if (res.result){
+                var table = '';
+
+                var tr = '<tr><td width="33.3%">${title}</td><td id="steamId" width="66.6%">${value}</td></tr>';
+                tr = tr.replace('${title}','Steam Id').replace('${value}',res.data.id);
+                table += tr
+
+                var tr = '<tr><td width="33.3%">${title}</td><td width="66.6%">${value}</td></tr>';
+                tr = tr.replace('${title}','昵称').replace('${value}',res.data.name);
+                table += tr
+
+                var tr = '<tr><td width="33.3%">${title}</td><td width="66.6%">${value}<button id="b_charge">充值</button></td></tr>';
+                tr = tr.replace('${title}','余额').replace('${value}',res.data.money);
+                table += tr
+
+                tr = '<tr><td width="33.3%">${title}</td><td width="66.3%">${value}</td></tr>';
+                tr = tr.replace('${title}','报价链接').replace('${value}',"<input style='width: inherit;' id='trade_url'/><button id='b_tradeUrl'>前往steam获取</button>");
+                table += tr
+                $('#profile_table').html(table);
+                $('#trade_url').val(res.data.tradeUrl);
+                $('#b_tradeUrl').on('click', function(e){
+                    window.open("https://steamcommunity.com/profiles/" + $('#steamId').text().trim() + "/tradeoffers/privacy#trade_offer_access_url");
+                });
+                $('#b_charge').on('click', function(){
+                    window.location.href = "charge.html";
+                })
+            }else{
+                alert(res.message)
+                if(res.data == '3') {
+                    setTimeout(function () {
+                        window.location.href = "main.html";
+                    }, 2000)
+                }
+            }
+        })
+    });
+</script>
+<header>
+    <div class="btn-header normal" id="main">首页</div>
+    <div class="btn-header normal" id="cards">卡牌</div>
+    <div class="btn-header normal" id="bag">背包</div>
+    <div class="btn-header active" id="profile">个人资料</div>
+    <div class="btn-header normal" id="charge">充值</div>
+</header>
+<div class="main" id="login_main">
+    <table id="profile_table" class="form" cellpadding="5" cellspacing="0" border="0">
+    </table>
+    <div class="f-load" style="margin-left: auto">
+        <div class="m-btn">
+            <a id="save_button">保存</a>
+        </div>
+    </div>
+    <!--<div class="form-page">-->
+
+    <!--<a href="#" class="btn-page" id="repo_prev">上一页</a><a href="#" class="btn-page" id="repo_next">下一页</a>当前<span id="repo_current">1</span>页&nbsp;&nbsp;&nbsp;<a href="#" class="btn-page" id="repo_goto">跳转</a>到-->
+    <!--<input type="text" id="repo_num">页  共<span id="repo_total">?</span>页-->
+    <!--</div>-->
+    <!--<div class="m-btn">-->
+    <!--<button>新增</button>-->
+    <!--</div>-->
+</div>
+
+</body>
+</html>
